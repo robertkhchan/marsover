@@ -45,7 +45,7 @@ class Rover(object):
         
         
     def getDestination(self):    
-        return str(self.x) + ", " + str(self.y) + ", " + self.orientation.name
+        return self.name + ":" + str(self.x) + " " + str(self.y) + " " + self.orientation.name
 
 
     def left(self):

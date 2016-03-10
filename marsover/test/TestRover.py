@@ -77,7 +77,7 @@ class TestRover(unittest.TestCase):
         rover.setInstruction("LMLMLMLMM")
         rover.run()
         
-        self.assertEqual("1, 2, N", rover.getDestination(), "Incorrect destination")
+        self.assertEqual("Rover1:1 2 N", rover.getDestination(), "Incorrect destination")
         
         
     def testRun2(self):
@@ -87,7 +87,7 @@ class TestRover(unittest.TestCase):
         rover.setInstruction("MMRMMRMRRM")
         rover.run()
         
-        self.assertEqual("5, 1, E", rover.getDestination(), "Incorrect destination")
+        self.assertEqual("Rover2:5 1 E", rover.getDestination(), "Incorrect destination")
         
         
     def testRun_MissingLandingInformation(self):
