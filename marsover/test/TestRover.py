@@ -14,7 +14,7 @@ class TestRover(unittest.TestCase):
         p = Plateau(5,5)
         rover = Rover(name="Rover1", plateau=p)
         
-        self.assertEqual(rover.name, "Rover1", "Set name failed")
+        self.assertEqual("Rover1", rover.name, "Failed to set name")
         
         
     def testSetLanding(self):
@@ -22,30 +22,53 @@ class TestRover(unittest.TestCase):
         rover = Rover("Rover1", p)
         rover.setLanding(x=1, y=1, orientation="N")
         
-        self.assertEqual(rover.x, 1, "Set x failed")
-        self.assertEqual(rover.y, 1, "Set y failed")
-        self.assertEqual(rover.orientation, Orientation.N, "Set orientation failed")
+        self.assertEqual(1, rover.x, "Failed to set x coordinate")
+        self.assertEqual(1, rover.y, "Failed to set y coordinate")
+        self.assertEqual(Orientation.N, rover.orientation, "Failed to set orientation")
         
+    
     def testSetLanding_OutsidePlateau(self):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
         
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(RuntimeError) as e:
             rover.setLanding(x=6, y=1, orientation="N")
             
-    def testSetLanding_UnsupportedOrientation(self):
+        self.assertEqual("Landed outside of plateau", str(e.exception))
+        
+        with self.assertRaises(RuntimeError) as e:
+            rover.setLanding(x=1, y=6, orientation="N")
+            
+        self.assertEqual("Landed outside of plateau", str(e.exception))
+        
+        with self.assertRaises(RuntimeError) as e:
+            rover.setLanding(x=-1, y=1, orientation="N")
+            
+        self.assertEqual("Landed outside of plateau", str(e.exception))
+        
+        with self.assertRaises(RuntimeError) as e:
+            rover.setLanding(x=1, y=-1, orientation="N")
+            
+        self.assertEqual("Landed outside of plateau", str(e.exception))
+            
+    
+    def testSetLanding_InvalidOrientation(self):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
         
-        with self.assertRaises(RuntimeError):
-            rover.setLanding(x=1, y=1, orientation="H")
+        with self.assertRaises(RuntimeError) as e:
+            rover.setLanding(x=1, y=1, orientation="*")
             
+        self.assertEqual("Invalid orientation", str(e.exception))
+            
+    
     def testSetInstruction(self):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
         rover.setInstruction("LMLMLMLMM")
         
-        self.assertEqual(rover.instruction, "LMLMLMLMM", "Set instruction failed")
+        self.assertEqual("LMLMLMLMM", rover.instruction, "Set instruction failed")
+        
         
     def testRun1(self):
         p = Plateau(5,5)
@@ -54,7 +77,8 @@ class TestRover(unittest.TestCase):
         rover.setInstruction("LMLMLMLMM")
         rover.run()
         
-        self.assertEqual(rover.getDestination(), "1, 2, N", "Incorrect destination")
+        self.assertEqual("1, 2, N", rover.getDestination(), "Incorrect destination")
+        
         
     def testRun2(self):
         p = Plateau(5,5)
@@ -63,16 +87,91 @@ class TestRover(unittest.TestCase):
         rover.setInstruction("MMRMMRMRRM")
         rover.run()
         
-        self.assertEqual(rover.getDestination(), "5, 1, E", "Incorrect destination")
+        self.assertEqual("5, 1, E", rover.getDestination(), "Incorrect destination")
         
-    def testRun_WithMissingProperties(self):
+        
+    def testRun_MissingLandingInformation(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setInstruction("LMLMLMLMM")
+        
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Missing landing information", str(e.exception), "Unexpected exception")
+        
+        
+    def testRun_MissingInstruction(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setLanding(x=1, y=1, orientation="N")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Missing instruction", str(e.exception), "Unexpected exception")
+        
+    
+    def testRun_MovesBeyondNorthBorder(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setLanding(x=5, y=5, orientation="N")
+        rover.setInstruction("M")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Rover moves beyond plateau boundary.", str(e.exception), "Unexpected exception")
+    
+    
+    def testRun_MovesBeyondEastBorder(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setLanding(x=5, y=5, orientation="E")
+        rover.setInstruction("M")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Rover moves beyond plateau boundary.", str(e.exception), "Unexpected exception")
+        
+    
+    def testRun_MovesBeyondSouthBorder(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setLanding(x=0, y=0, orientation="S")
+        rover.setInstruction("M")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Rover moves beyond plateau boundary.", str(e.exception), "Unexpected exception")
+        
+    
+    def testRun_MovesBeyondWestBorder(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setLanding(x=0, y=0, orientation="W")
+        rover.setInstruction("M")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Rover moves beyond plateau boundary.", str(e.exception), "Unexpected exception")
+        
+    
+    def testRun_MovesBeyondPlateau(self):
+        p = Plateau(5,5)        
+        rover = Rover("Rover1", p)
+        rover.setLanding(x=1, y=1, orientation="N")
+        rover.setInstruction("LMMMMM")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
+        
+        self.assertEqual("Rover moves beyond plateau boundary.", str(e.exception), "Unexpected exception")
+    
+        
+    def testRun_InvalidMovement(self):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
+        rover.setLanding(x=1, y=1, orientation="N")
+        rover.setInstruction("LMLML*LMM")
+                
+        with self.assertRaises(RuntimeError) as e: rover.run()
         
-        with self.assertRaises(RuntimeError) as re: rover.run()
-        self.assertEqual("Missing landing information", str(re.exception))
-        
-        rover.setLanding(x=1, y=1, orientation="N")        
-        with self.assertRaises(RuntimeError) as re: rover.run()
-        self.assertEqual("Missing instruction", str(re.exception))
+        self.assertEqual("Invalid movement", str(e.exception), "Unexpected exception")
         

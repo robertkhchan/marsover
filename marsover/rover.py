@@ -18,8 +18,8 @@ class Rover(object):
         
         
     def setLanding(self, x, y, orientation):        
-        if (x > self.plateau.borderX or y > self.plateau.borderY):
-            raise RuntimeError("Landing outside of plateau")
+        if (x < 0 or x > self.plateau.borderX or y < 0 or y > self.plateau.borderY):
+            raise RuntimeError("Landed outside of plateau")
         else:
             self.x = x
             self.y = y
@@ -27,7 +27,7 @@ class Rover(object):
         try:
             self.orientation = Orientation[orientation]
         except KeyError:
-            raise RuntimeError("Unsupported orientation")
+            raise RuntimeError("Invalid orientation")
         
     
     def setInstruction(self, instruction):
@@ -41,7 +41,7 @@ class Rover(object):
             raise RuntimeError("Missing instruction")
         
         for c in self.instruction:
-            self.movement[c]()
+            self.movement.get(c, self.invalidMovement)()
         
         
     def getDestination(self):    
@@ -56,10 +56,29 @@ class Rover(object):
             
     def move(self):
         if self.orientation == Orientation.N:
-            self.y += 1
+            if (self.y + 1 <= self.plateau.borderY): 
+                self.y += 1 
+            else: 
+                raise RuntimeError("Rover moves beyond plateau boundary.")
+            
         elif self.orientation == Orientation.E:
-            self.x += 1
+            if (self.x + 1 <= self.plateau.borderX):
+                self.x += 1
+            else:
+                raise RuntimeError("Rover moves beyond plateau boundary.")
+                
         elif self.orientation == Orientation.S:
-            self.y -= 1
+            if (self.y - 1 >= 0): 
+                self.y -= 1
+            else:
+                raise RuntimeError("Rover moves beyond plateau boundary.")
+                
         elif self.orientation == Orientation.W:
-            self.x -= 1
+            if (self.x - 1 >= 0): 
+                self.x -= 1
+            else:
+                raise RuntimeError("Rover moves beyond plateau boundary.")
+
+
+    def invalidMovement(self):
+        raise RuntimeError("Invalid movement")
