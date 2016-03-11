@@ -6,7 +6,7 @@ Created on Mar 10, 2016
 from marsover.cmdPlateau import PlateauCommand
 from marsover.cmdLanding import LandingCommand
 from marsover.cmdInstruction import InstructionCommand
-from marsover.applicationException import AppException
+from marsover.applicationException import AppError
 
 class CommandFactory(object):
     
@@ -21,6 +21,6 @@ class CommandFactory(object):
         elif (InstructionCommand.isCompatible(text)):
             command = InstructionCommand(program)
         else:
-            raise AppException("Unsupported command")
+            raise AppError("Unsupported command")
             
         return command

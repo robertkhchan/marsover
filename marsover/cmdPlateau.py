@@ -1,9 +1,19 @@
 '''
 Created on Mar 10, 2016
 
+Handle command to define plateau
+    Plateau:borderX borderY
+    
+Arguments:
+    borderX - x coordinate of upper right corner of plateau
+    borderY - y coordinate of upper right corder of plateau
+
+For example:
+    Plateau:5 5
+
 @author: Robert Chan
 '''
-from marsover.applicationException import AppException
+from marsover.applicationException import AppError
 from marsover.command import Command
 from marsover.plateau import Plateau
 
@@ -14,17 +24,25 @@ class PlateauCommand(Command):
     
     def execute(self, text):
         try:
-            args = text[len(PlateauCommand.commandSyntax):].split(" ")
-        except Exception as e:
-            raise AppException("Error encountered when parsing arguments for PlateauCommand: " + str(e))
+            args = text[len(PlateauCommand.commandSyntax):].strip().split(" ")
             
-        if (hasattr(self._obj,"plateau") and self._obj.plateau is not None):
-            raise AppException("Plateau is already defined")
-        elif (len(args) != 2):
-            raise AppException("Landing command takes 2 arguments: borderX borderY")
+            if (hasattr(self._obj,"plateau") and self._obj.plateau is not None):
+                raise AppError("Plateau is already defined")
+            elif (len(args) != 2):
+                raise AppError("Invalid number of arguments")
+            
+            borderX = int(args[0])
+            borderY = int(args[1])
+
+        except ValueError:
+            print("Arguments must be integer")
+        except Exception as e:
+            print(e)
         
-        self._obj.plateau = Plateau(int(args[0]), int(args[1]))
-    
+        else:
+            self._obj.plateau = Plateau(borderX, borderY)
+
+            
     @staticmethod
     def isCompatible(text):
         return text.startswith(PlateauCommand.commandSyntax)

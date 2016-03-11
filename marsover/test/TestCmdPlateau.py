@@ -3,22 +3,27 @@ Created on Mar 10, 2016
 
 @author: Robert Chan
 '''
+from contextlib import redirect_stdout
+import io
 import unittest
-from program import Program
+
 from marsover.cmdPlateau import PlateauCommand
 from marsover.plateau import Plateau
-from marsover.applicationException import AppException
+from program import Program
 
 
 class TestCmdPlateau(unittest.TestCase):
 
     def testExecute(self):
         program = Program()
+        cmd = PlateauCommand(program)
         
         self.assertTrue(program.plateau is None)
         
-        cmd = PlateauCommand(program)
-        cmd.execute("Plateau:1 2")
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:1 2")        
+        self.assertEqual("Plateau defined\n", f.getvalue())
+        f.close()
         
         self.assertTrue(program.plateau is not None)
         self.assertEqual(program.plateau.borderX, 1)
@@ -27,23 +32,47 @@ class TestCmdPlateau(unittest.TestCase):
         
     def testExecute_PlateauAlreadyDefine(self):
         program = Program()
-        program.plateau = Plateau(5,5)
-        
+        program.plateau = Plateau(5,5)        
         cmd = PlateauCommand(program)
-        with self.assertRaises(AppException) as e: cmd.execute("Plateau:1 2")
         
-        self.assertEqual("Plateau is already defined", str(e.exception))
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:1 2")        
+        self.assertEqual("Plateau is already defined\n", f.getvalue())
+        f.close()
         
         
-    def testExecute_InvalidArguments(self):
+    def testExecute_InvalidNumberOfArguments(self):
         program = Program()        
-        
         cmd = PlateauCommand(program)        
-        with self.assertRaises(ValueError): cmd.execute("Plateau:A 2")
-        with self.assertRaises(ValueError): cmd.execute("Plateau:1, 2")
-        with self.assertRaises(AppException) as e: cmd.execute("Plateau:1 2 3")
         
-        self.assertEqual("Landing command takes 2 arguments: borderX borderY", str(e.exception))
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:")
+        self.assertEqual("Invalid number of arguments\n", f.getvalue())
+        f.close()
+        
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:1")
+        self.assertEqual("Invalid number of arguments\n", f.getvalue())
+        f.close()
+        
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:1 2 3")
+        self.assertEqual("Invalid number of arguments\n", f.getvalue())
+        f.close()
+        
+    def testExecute_ArgumentsNotInteger(self):
+        program = Program()        
+        cmd = PlateauCommand(program)        
+        
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:1 A")
+        self.assertEqual("Arguments must be integer\n", f.getvalue())
+        f.close()
+        
+        f = io.StringIO()
+        with redirect_stdout(f): cmd.execute("Plateau:H 2")
+        self.assertEqual("Arguments must be integer\n", f.getvalue())
+        f.close()
 
         
     def testIsCompatible(self):

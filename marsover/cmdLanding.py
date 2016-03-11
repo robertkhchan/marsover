@@ -5,30 +5,40 @@ Created on Mar 10, 2016
 '''
 from marsover.command import Command
 from marsover.rover import Rover
-from marsover.applicationException import AppException
+from marsover.applicationException import AppError
+from marsover.orientation import Orientation
 
 class LandingCommand(Command):
     
     commandSyntax = " Landing:"
     
     def execute(self, text):
-        if (not hasattr(self._obj, "plateau") or self._obj.plateau is None):
-            raise AppException("Plateau needs to be defined before landing rover")
-
         try:
             roverName = text[0:text.index(LandingCommand.commandSyntax)]
-            args = text[text.index(LandingCommand.commandSyntax)+len(LandingCommand.commandSyntax):].split(" ")
-        except Exception as e:
-            raise AppException("Error encountered when parsing arguments for LandingCommand: " + str(e))
-            
-        if (roverName in self._obj.rovers.keys()):
-            raise AppException(roverName + " already exists")
-        elif (len(args) != 3):
-            raise AppException("Landing command takes 3 arguments: x y orientation")
+            args = text[text.index(LandingCommand.commandSyntax)+len(LandingCommand.commandSyntax):].strip().split(" ")
+
+            if (not hasattr(self._obj, "plateau") or self._obj.plateau is None):
+                raise AppError("Plateau has not been defined")
+            elif (roverName in self._obj.rovers.keys()):
+                raise AppError(roverName + " already exists")
+            elif (len(args) != 3):
+                raise AppError("Invalid number of arguments")
         
-        rover = Rover(roverName, self._obj.plateau)
-        rover.setLanding(int(args[0]), int(args[1]), args[2])
-        self._obj.rovers[roverName] = rover
+            x = int(args[0])
+            y = int(args[1])
+            orientation = Orientation[args[2]]
+            
+        except KeyError:
+            print("Invalid orientation")
+        except ValueError:
+            print("x and y values must be integer")
+        except Exception as e:
+            print(e)
+            
+        else:
+            rover = Rover(roverName, self._obj.plateau)
+            rover.setLanding(x, y, orientation)
+            self._obj.rovers[roverName] = rover
             
     
     @staticmethod

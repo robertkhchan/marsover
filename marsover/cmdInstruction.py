@@ -4,7 +4,7 @@ Created on Mar 10, 2016
 @author: Robert Chan
 '''
 from marsover.command import Command
-from marsover.applicationException import AppException
+from marsover.applicationException import AppError
 
 class InstructionCommand(Command):
     
@@ -13,17 +13,19 @@ class InstructionCommand(Command):
     def execute(self, text):
         try:
             roverName = text[0:text.index(InstructionCommand.commandSyntax)]
-            args = text[text.index(InstructionCommand.commandSyntax)+len(InstructionCommand.commandSyntax):].split(" ")
-        except Exception as e:
-            raise AppException("Error encountered when parsing arguments for InstructionCommand: " + str(e))
+            args = text[text.index(InstructionCommand.commandSyntax)+len(InstructionCommand.commandSyntax):].strip().split(" ")
             
-        if (roverName not in self._obj.rovers.keys()):
-            raise AppException(roverName + " must be landed before accepting instructions")
-        elif (len(args) != 1):
-            raise AppException("Instruction command takes 1 argument: instructions")
-        
-        rover = self._obj.rovers[roverName]
-        rover.setInstruction(args[0])
+            if (roverName not in self._obj.rovers.keys()):
+                raise AppError(roverName + " does not exist")
+            elif (len(args) != 1 or len(args[0].strip()) == 0 ):
+                raise AppError("Invalid number of arguments")
+            
+        except Exception as e:
+            print(e)
+
+        else:            
+            rover = self._obj.rovers[roverName]
+            rover.setInstruction(args[0])
 
     
     @staticmethod
