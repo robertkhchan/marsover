@@ -5,22 +5,31 @@ Created on Mar 10, 2016
 '''
 from marsover.command import Command
 from marsover.rover import Rover
+from marsover.applicationException import AppException
 
 class LandingCommand(Command):
     
     commandSyntax = " Landing:"
     
     def execute(self, text):
+        if (not hasattr(self._obj, "plateau") or self._obj.plateau is None):
+            raise AppException("Plateau needs to be defined before landing rover")
+
         try:
             roverName = text[0:text.index(LandingCommand.commandSyntax)]
             args = text[text.index(LandingCommand.commandSyntax)+len(LandingCommand.commandSyntax):].split(" ")
-            rover = Rover(roverName, self._obj.plateau)
-            rover.setLanding(int(args[0]), int(args[1]), args[2])
-            self._obj.rovers[roverName] = rover
-            print("Executed LandingCommand")
+        except Exception as e:
+            raise AppException("Error encountered when parsing arguments for LandingCommand: " + str(e))
             
-        except Exception:
-            print("Failed to execute LandingCommand.")
+        if (roverName in self._obj.rovers.keys()):
+            raise AppException(roverName + " already exists")
+        elif (len(args) != 3):
+            raise AppException("Landing command takes 3 arguments: x y orientation")
+        
+        rover = Rover(roverName, self._obj.plateau)
+        rover.setLanding(int(args[0]), int(args[1]), args[2])
+        self._obj.rovers[roverName] = rover
+            
     
     @staticmethod
     def isCompatible(text):

@@ -4,6 +4,7 @@ Created on Mar 9, 2016
 @author: Robert Chan
 '''
 from marsover.orientation import Orientation
+from marsover.applicationException import AppException
 
 class Rover(object):
     
@@ -19,7 +20,7 @@ class Rover(object):
         
     def setLanding(self, x, y, orientation):        
         if (x < 0 or x > self.plateau.borderX or y < 0 or y > self.plateau.borderY):
-            raise RuntimeError("Landed outside of plateau")
+            raise AppException(self.name + " lands outside of plateau.")
         else:
             self.x = x
             self.y = y
@@ -27,7 +28,7 @@ class Rover(object):
         try:
             self.orientation = Orientation[orientation]
         except KeyError:
-            raise RuntimeError("Invalid orientation")
+            raise AppException("Invalid orientation")
         
     
     def setInstruction(self, instruction):
@@ -36,9 +37,9 @@ class Rover(object):
         
     def run(self):        
         if not hasattr(self, "x") or not hasattr(self, "y") or not hasattr(self, "orientation"): 
-            raise RuntimeError("Missing landing information")
+            raise AppException(self.name + " is missing landing information")
         if not hasattr(self, "instruction"): 
-            raise RuntimeError("Missing instruction")
+            raise AppException(self.name + " is missing moving instruction")
         
         for c in self.instruction:
             self.movement.get(c, self.invalidMovement)()
@@ -55,30 +56,17 @@ class Rover(object):
         self.orientation = Orientation((self.orientation.value+1) % 4)
             
     def move(self):
-        if self.orientation == Orientation.N:
-            if (self.y + 1 <= self.plateau.borderY): 
+        if (self.orientation == Orientation.N and self.y + 1 <= self.plateau.borderY): 
                 self.y += 1 
-            else: 
-                raise RuntimeError("Rover moves beyond plateau boundary.")
-            
-        elif self.orientation == Orientation.E:
-            if (self.x + 1 <= self.plateau.borderX):
+        elif (self.orientation == Orientation.E and self.x + 1 <= self.plateau.borderX):
                 self.x += 1
-            else:
-                raise RuntimeError("Rover moves beyond plateau boundary.")
-                
-        elif self.orientation == Orientation.S:
-            if (self.y - 1 >= 0): 
+        elif (self.orientation == Orientation.S and self.y - 1 >= 0): 
                 self.y -= 1
-            else:
-                raise RuntimeError("Rover moves beyond plateau boundary.")
-                
-        elif self.orientation == Orientation.W:
-            if (self.x - 1 >= 0): 
+        elif (self.orientation == Orientation.W and self.x - 1 >= 0): 
                 self.x -= 1
-            else:
-                raise RuntimeError("Rover moves beyond plateau boundary.")
+        else: 
+            raise AppException(self.name + " moves beyond plateau boundary.")
 
 
     def invalidMovement(self):
-        raise RuntimeError("Invalid movement")
+        raise AppException("Invalid movement")

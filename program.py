@@ -3,10 +3,8 @@ Created on Mar 10, 2016
 
 @author: Robert Chan
 '''
-import sys
-from marsover.cmdPlateau import PlateauCommand
-from marsover.cmdLanding import LandingCommand
-from marsover.cmdInstruction import InstructionCommand
+from marsover.commandFactory import CommandFactory
+from marsover.applicationException import AppException
 
 class Program(object):
     
@@ -14,34 +12,31 @@ class Program(object):
         self.plateau = None
         self.rovers = dict()
         
+        
     def process(self, text):
-        if (PlateauCommand.isCompatible(text)):
-            command = PlateauCommand(self)
+        try:
+            command = CommandFactory.getCommand(self, text)
             command.execute(text)
-        elif (LandingCommand.isCompatible(text)):
-            command = LandingCommand(self)
-            command.execute(text)
-        elif (InstructionCommand.isCompatible(text)):
-            command = InstructionCommand(self)
-            command.execute(text)
-        else:
-            raise RuntimeError("Unsupported command")
+        except AppException as e:
+            print(str(e))
+            
                 
     def complete(self):
         for roverName in self.rovers:
-            self.rovers[roverName].run()
-            print(self.rovers[roverName].getDestination())
+            try:
+                self.rovers[roverName].run()
+                print(self.rovers[roverName].getDestination())
+            except AppException as e:
+                print(str(e))
 
 
 if __name__ == '__main__':
-    print(sys.path)
     program = Program()
     
     while True:
         entered = input("")        
-        if not entered: 
-            program.complete()
-            break
-        else:
+        if entered: 
             program.process(entered)
-        
+        else:
+            program.complete()
+            break        
