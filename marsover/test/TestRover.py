@@ -104,7 +104,7 @@ class TestRover(unittest.TestCase):
         
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 is missing moving instruction\n", f.getvalue())
+        self.assertEqual("Rover1 is missing moving instruction\nRover1:1 1 N\n", f.getvalue())
         f.close()
         
     
@@ -116,7 +116,7 @@ class TestRover(unittest.TestCase):
     
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\n", f.getvalue())
+        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:5 5 N\n", f.getvalue())
         f.close()
         
     
@@ -128,7 +128,7 @@ class TestRover(unittest.TestCase):
         
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\n", f.getvalue())
+        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:5 5 E\n", f.getvalue())
         f.close()
         
     
@@ -140,7 +140,7 @@ class TestRover(unittest.TestCase):
                 
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\n", f.getvalue())
+        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:0 0 S\n", f.getvalue())
         f.close()    
     
     
@@ -152,7 +152,7 @@ class TestRover(unittest.TestCase):
         
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\n", f.getvalue())
+        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:0 0 W\n", f.getvalue())
         f.close()
         
     
@@ -164,7 +164,7 @@ class TestRover(unittest.TestCase):
     
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\n", f.getvalue())
+        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:0 1 W\n", f.getvalue())
         f.close()
         
         
@@ -176,6 +176,6 @@ class TestRover(unittest.TestCase):
         
         f = io.StringIO()
         with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 encounters an invalid movement\n", f.getvalue())
+        self.assertEqual("Rover1 encounters an invalid movement\nRover1:0 0 E\n", f.getvalue())
         f.close()
         

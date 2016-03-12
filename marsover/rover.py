@@ -77,15 +77,17 @@ class Rover(object):
                 raise AppError(self.name + " is missing landing information")
             if not hasattr(self, "instruction"): 
                 raise AppError(self.name + " is missing moving instruction")
-        
+            
             for c in self.instruction:
                 self.movement.get(c, self.invalidMovement)()
-
+                
         except AppError as e:
             print(e)
             
         finally:
-            print(self.name + ":" + str(self.x) + " " + str(self.y) + " " + self.orientation.name)
+            if hasattr(self, "x") and hasattr(self, "y") and hasattr(self, "orientation"):
+                print(self.name + ":" + str(self.x) + " " + str(self.y) + " " + self.orientation.name)
+
 
 
     def left(self):
