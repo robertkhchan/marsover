@@ -1,7 +1,8 @@
-'''
-Created on Mar 9, 2016
+'''Enumeration of orientation
 
+Created on Mar 9, 2016
 @author: Robert Chan
+
 '''
 from enum import Enum
 
