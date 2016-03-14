@@ -19,10 +19,10 @@ Example:
     Rover1 Landing:1 2 N
 
 '''
-from marsover.command import Command
-from marsover.rover import Rover
-from marsover.applicationException import AppError
-from marsover.orientation import Orientation
+from marsrover.command import Command
+from marsrover.rover import Rover
+from marsrover.applicationException import AppError
+from marsrover.orientation import Orientation
 
 class LandingCommand(Command):
     

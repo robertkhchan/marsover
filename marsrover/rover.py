@@ -6,8 +6,8 @@ Created on Mar 9, 2016
 @author: Robert Chan
 
 '''
-from marsover.orientation import Orientation
-from marsover.applicationException import AppError
+from marsrover.orientation import Orientation
+from marsrover.applicationException import AppError
 
 class Rover(object):
     

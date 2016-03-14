@@ -5,11 +5,11 @@ Created on Mar 10, 2016
 '''
 from unittest import TestCase
 from program import Program
-from marsover.cmdLanding import LandingCommand
-from marsover.plateau import Plateau
-from marsover.orientation import Orientation
-from marsover.rover import Rover
-from marsover.applicationException import AppError
+from marsrover.cmdLanding import LandingCommand
+from marsrover.plateau import Plateau
+from marsrover.orientation import Orientation
+from marsrover.rover import Rover
+from marsrover.applicationException import AppError
 
 
 class TestCmdLanding(TestCase):

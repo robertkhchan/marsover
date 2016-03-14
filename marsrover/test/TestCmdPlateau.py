@@ -4,10 +4,10 @@ Created on Mar 10, 2016
 @author: Robert Chan
 '''
 from unittest import TestCase
-from marsover.cmdPlateau import PlateauCommand
-from marsover.plateau import Plateau
+from marsrover.cmdPlateau import PlateauCommand
+from marsrover.plateau import Plateau
 from program import Program
-from marsover.applicationException import AppError
+from marsrover.applicationException import AppError
 
 
 class TestCmdPlateau(TestCase):

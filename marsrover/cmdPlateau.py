@@ -16,9 +16,9 @@ For example:
     Plateau:5 5
 
 '''
-from marsover.applicationException import AppError
-from marsover.command import Command
-from marsover.plateau import Plateau
+from marsrover.applicationException import AppError
+from marsrover.command import Command
+from marsrover.plateau import Plateau
 
 
 class PlateauCommand(Command):

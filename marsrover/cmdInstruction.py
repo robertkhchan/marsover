@@ -16,8 +16,8 @@ For example:
     Rover1 Instructions:LMLMLMLMM
 
 '''
-from marsover.command import Command
-from marsover.applicationException import AppError
+from marsrover.command import Command
+from marsrover.applicationException import AppError
 
 class InstructionCommand(Command):
     

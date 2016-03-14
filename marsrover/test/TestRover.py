@@ -4,12 +4,10 @@ Created on Mar 9, 2016
 @author: Robert Chan
 '''
 import unittest
-from marsover.plateau import Plateau
-from marsover.rover import Rover
-from marsover.orientation import Orientation
-import io
-from contextlib import redirect_stdout
-from marsover.applicationException import AppError
+from marsrover.plateau import Plateau
+from marsrover.rover import Rover
+from marsrover.orientation import Orientation
+from marsrover.applicationException import AppError
 
 class TestRover(unittest.TestCase):
     

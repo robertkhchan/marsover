@@ -4,8 +4,8 @@ Created on Mar 10, 2016
 @author: Robert Chan
 
 '''
-from marsover.commandFactory import CommandFactory
-from marsover.applicationException import AppError
+from marsrover.commandFactory import CommandFactory
+from marsrover.applicationException import AppError
 
 class Program(object):
     

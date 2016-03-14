@@ -7,10 +7,10 @@ This module follows the Factory pattern and its purpose is to create
 the appropriate Command based on the input text.
 
 '''
-from marsover.cmdPlateau import PlateauCommand
-from marsover.cmdLanding import LandingCommand
-from marsover.cmdInstruction import InstructionCommand
-from marsover.applicationException import AppError
+from marsrover.cmdPlateau import PlateauCommand
+from marsrover.cmdLanding import LandingCommand
+from marsrover.cmdInstruction import InstructionCommand
+from marsrover.applicationException import AppError
 
 class CommandFactory(object):
     

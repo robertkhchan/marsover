@@ -4,11 +4,11 @@ Created on Mar 10, 2016
 @author: Robert Chan
 '''
 from unittest import TestCase
-from marsover.cmdInstruction import InstructionCommand
-from marsover.plateau import Plateau
-from marsover.rover import Rover
+from marsrover.cmdInstruction import InstructionCommand
+from marsrover.plateau import Plateau
+from marsrover.rover import Rover
 from program import Program
-from marsover.applicationException import AppError
+from marsrover.applicationException import AppError
 
 class TestCmdInstruction(TestCase):
 
