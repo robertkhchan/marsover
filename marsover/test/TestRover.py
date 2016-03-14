@@ -9,11 +9,13 @@ from marsover.rover import Rover
 from marsover.orientation import Orientation
 import io
 from contextlib import redirect_stdout
+from marsover.applicationException import AppError
 
 class TestRover(unittest.TestCase):
     
     def testConstructor(self):
         p = Plateau(5,5)
+        
         rover = Rover(name="Rover1", plateau=p)
         
         self.assertEqual("Rover1", rover.name, "Failed to set name")
@@ -22,6 +24,7 @@ class TestRover(unittest.TestCase):
     def testSetLanding(self):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
+        
         rover.setLanding(x=1, y=1, orientation=Orientation.N)
         
         self.assertEqual(1, rover.x, "Failed to set x coordinate")
@@ -33,33 +36,30 @@ class TestRover(unittest.TestCase):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.setLanding(6, 1, Orientation.N)        
-        self.assertEqual("Rover1 cannot land outside of plateau\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.setLanding(6, 1, Orientation.N)
+        self.assertEqual("Rover1 cannot land outside of plateau", str(e.exception))
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.setLanding(1, 6, Orientation.N)        
-        self.assertEqual("Rover1 cannot land outside of plateau\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.setLanding(1, 6, Orientation.N)
+        self.assertEqual("Rover1 cannot land outside of plateau", str(e.exception))
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.setLanding(-1, 1, Orientation.N)        
-        self.assertEqual("Rover1 cannot land outside of plateau\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.setLanding(-1, 1, Orientation.N)
+        self.assertEqual("Rover1 cannot land outside of plateau", str(e.exception))
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.setLanding(1, -1, Orientation.N)        
-        self.assertEqual("Rover1 cannot land outside of plateau\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.setLanding(1, -1, Orientation.N)
+        self.assertEqual("Rover1 cannot land outside of plateau", str(e.exception))
             
         
     def testSetInstruction(self):
         p = Plateau(5,5)
         rover = Rover("Rover1", p)
+        
         rover.setInstruction("LMLMLMLMM")
         
-        self.assertEqual("LMLMLMLMM", rover.instruction, "Set instruction failed")
+        self.assertEqual("LMLMLMLMM", rover.instruction, "Failed to set instruction")
         
         
     def testRun1(self):
@@ -68,10 +68,9 @@ class TestRover(unittest.TestCase):
         rover.setLanding(1, 1, Orientation.N)
         rover.setInstruction("LMLMLMLMM")
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1:1 2 N\n", f.getvalue())
-        f.close()
+        rover.run()
+                
+        self.assertEqual("Rover1:1 2 N", rover.getDestination())
         
         
     def testRun2(self):
@@ -80,10 +79,9 @@ class TestRover(unittest.TestCase):
         rover.setLanding(3, 3, Orientation.E)
         rover.setInstruction("MMRMMRMRRM")
 
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover2:5 1 E\n", f.getvalue())
-        f.close()
+        rover.run()
+                
+        self.assertEqual("Rover2:5 1 E", rover.getDestination())
         
         
     def testRun_MissingLandingInformation(self):
@@ -91,33 +89,22 @@ class TestRover(unittest.TestCase):
         rover = Rover("Rover1", p)
         rover.setInstruction("LMLMLMLMM")
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 is missing landing information\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                    
+        self.assertEqual("Rover1 is missing landing information", str(e.exception))
         
         
-    def testRun_MissingInstruction(self):
-        p = Plateau(5,5)        
-        rover = Rover("Rover1", p)
-        rover.setLanding(1, 1, Orientation.N)
-        
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 is missing moving instruction\nRover1:1 1 N\n", f.getvalue())
-        f.close()
-        
-    
     def testRun_MovesBeyondNorthBorder(self):
         p = Plateau(5,5)        
         rover = Rover("Rover1", p)
         rover.setLanding(5, 5, Orientation.N)
         rover.setInstruction("M")
     
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:5 5 N\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                            
+        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
         
     
     def testRun_MovesBeyondEastBorder(self):
@@ -125,11 +112,11 @@ class TestRover(unittest.TestCase):
         rover = Rover("Rover1", p)
         rover.setLanding(5, 5, Orientation.E)
         rover.setInstruction("M")
-        
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:5 5 E\n", f.getvalue())
-        f.close()
+    
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                            
+        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
         
     
     def testRun_MovesBeyondSouthBorder(self):
@@ -137,11 +124,11 @@ class TestRover(unittest.TestCase):
         rover = Rover("Rover1", p)
         rover.setLanding(0, 0, Orientation.S)
         rover.setInstruction("M")
-                
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:0 0 S\n", f.getvalue())
-        f.close()    
+    
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                            
+        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
     
     
     def testRun_MovesBeyondWestBorder(self):
@@ -149,11 +136,11 @@ class TestRover(unittest.TestCase):
         rover = Rover("Rover1", p)
         rover.setLanding(0, 0, Orientation.W)
         rover.setInstruction("M")
-        
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:0 0 W\n", f.getvalue())
-        f.close()
+    
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                            
+        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
         
     
     def testRun_MovesBeyondPlateau(self):
@@ -162,10 +149,10 @@ class TestRover(unittest.TestCase):
         rover.setLanding(1, 1, Orientation.N)
         rover.setInstruction("LMMMMM")
     
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 cannot move beyond plateau boundary\nRover1:0 1 W\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                            
+        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
         
         
     def testRun_InvalidMovement(self):
@@ -174,8 +161,7 @@ class TestRover(unittest.TestCase):
         rover.setLanding(1, 1, Orientation.N)
         rover.setInstruction("LMLML*LMM")
         
-        f = io.StringIO()
-        with redirect_stdout(f): rover.run()        
-        self.assertEqual("Rover1 encounters an invalid movement\nRover1:0 0 E\n", f.getvalue())
-        f.close()
-        
+        with self.assertRaises(AppError) as e: 
+            rover.run()
+                            
+        self.assertEqual("Rover1 encounters an invalid movement", str(e.exception))

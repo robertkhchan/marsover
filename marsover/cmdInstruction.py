@@ -46,7 +46,11 @@ class InstructionCommand(Command):
             raise AppError("Invalid number of arguments")
             
         rover = self._context.rovers[roverName]
-        rover.setInstruction(args[0])
+        isOverwrote = rover.setInstruction(args[0])
+        if (not isOverwrote):
+            print(roverName + " received instructions")
+        else:
+            print(roverName + " overwrote previous instructions")
 
     
     @staticmethod

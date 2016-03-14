@@ -56,6 +56,7 @@ class PlateauCommand(Command):
         
         else:
             self._context.plateau = Plateau(borderX, borderY)
+            print("Plateau defined")
         
 
     @staticmethod

@@ -20,6 +20,5 @@ class Plateau(object):
         
         self.borderX = borderX
         self.borderY = borderY
-        print("Plateau defined")
 
 

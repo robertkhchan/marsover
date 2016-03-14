@@ -31,15 +31,17 @@ class Rover(object):
             x (int): x coordinate of landing site
             y (int): y coordinate of landing site
             orientation (Orientation): one of four Orientation values
+        
+        Raises:
+            AppError: when rover lands outside of plateau
              
         '''   
         if (x < 0 or x > self.plateau.borderX or y < 0 or y > self.plateau.borderY):
-            print(self.name + " cannot land outside of plateau")
+            raise AppError(self.name + " cannot land outside of plateau")
         else:
             self.x = x
             self.y = y
             self.orientation = orientation
-            print(self.name, "landed")
                 
     
     def setInstruction(self, instruction):
@@ -52,42 +54,38 @@ class Rover(object):
             self (Rover): this rover
             instruction (str): continuous string of movements
             
-        '''        
-        if (not hasattr(self, "instruction") or self.instruction is None):
-            print(self.name, "received instruction")
-        else:
-            print(self.name,"overwrote previous instruction")
+        Returns:
+            isOverwrote (bool): True if previous instructions has been overwritten; False otherwise
+        '''
+        isOverwrote = False
+        if (hasattr(self, "instruction") and self.instruction is not None):
+            isOverwrote = True
             
         self.instruction = instruction
-
+        
+        return isOverwrote
         
     def run(self):       
         '''Move rover according to instructions and print rover final destination
         
         In order to move a rover, the following must be satisfied:
-        1) Rover must be landed,
-        2) Landing instructions is set
+        1) Rover must be landed
         
         Raises:
             AppError: Either landing information or moving instructions is missing
             
         '''         
-        try:
-            if not hasattr(self, "x") or not hasattr(self, "y") or not hasattr(self, "orientation"): 
-                raise AppError(self.name + " is missing landing information")
-            if not hasattr(self, "instruction"): 
-                raise AppError(self.name + " is missing moving instruction")
-            
+        if not hasattr(self, "x") or not hasattr(self, "y") or not hasattr(self, "orientation"): 
+            raise AppError(self.name + " is missing landing information")
+
+        if hasattr(self, "instruction"):            
             for c in self.instruction:
                 self.movement.get(c, self.invalidMovement)()
-                
-        except AppError as e:
-            print(e)
-            
-        finally:
-            if hasattr(self, "x") and hasattr(self, "y") and hasattr(self, "orientation"):
-                print(self.name + ":" + str(self.x) + " " + str(self.y) + " " + self.orientation.name)
 
+
+    def getDestination(self):
+        if hasattr(self, "x") and hasattr(self, "y") and hasattr(self, "orientation"):
+                return self.name + ":" + str(self.x) + " " + str(self.y) + " " + self.orientation.name
 
 
     def left(self):

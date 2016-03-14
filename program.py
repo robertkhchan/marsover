@@ -29,8 +29,12 @@ class Program(object):
         for roverName in self.rovers:
             try:
                 self.rovers[roverName].run()
+                
             except AppError as e:
                 print(str(e))
+                
+            finally:
+                print(self.rovers[roverName].getDestination())
 
 
 if __name__ == '__main__':
