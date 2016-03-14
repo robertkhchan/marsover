@@ -3,29 +3,26 @@ Created on Mar 10, 2016
 
 @author: Robert Chan
 '''
-import unittest
+from unittest import TestCase
 from program import Program
 from marsover.cmdLanding import LandingCommand
 from marsover.plateau import Plateau
 from marsover.orientation import Orientation
 from marsover.rover import Rover
-import io
-from contextlib import redirect_stdout
+from marsover.applicationException import AppError
 
 
-class TestCmdLanding(unittest.TestCase):
+class TestCmdLanding(TestCase):
 
     def testExecute(self):
         program = Program()
         program.plateau = Plateau(5, 5)
         cmd = LandingCommand(program)
         
-        with self.assertRaises(KeyError): program.rovers["Rover1"] 
+        with self.assertRaises(KeyError): 
+            program.rovers["Rover1"] 
         
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1 2 N")        
-        self.assertEqual("Rover1 landed\n", f.getvalue())
-        f.close()
+        cmd.execute("Rover1 Landing:1 2 N")        
         
         rover = program.rovers["Rover1"]
         self.assertEqual("Rover1", rover.name)
@@ -38,10 +35,10 @@ class TestCmdLanding(unittest.TestCase):
         program = Program()
         cmd = LandingCommand(program)
         
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1 2 N")        
-        self.assertEqual("Plateau has not been defined\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1 2 N")
+                    
+        self.assertEqual("Plateau has not been defined", str(e.exception))
         
         
     def testExecute_RoverAlreadyExists(self):
@@ -50,63 +47,58 @@ class TestCmdLanding(unittest.TestCase):
         program.rovers["Rover1"] = Rover("Rover1", program.plateau)
         cmd = LandingCommand(program)
         
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1 2 N")        
-        self.assertEqual("Rover1 already exists\n", f.getvalue())
-        f.close()
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1 2 N")
+                    
+        self.assertEqual("Rover1 already exists", str(e.exception))
         
         
     def testExecute_InvalidNumberOfArguments(self):
         program = Program()
         program.plateau = Plateau(5,5)
         cmd = LandingCommand(program)
-
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:")        
-        self.assertEqual("Invalid number of arguments\n", f.getvalue())
-        f.close()
-
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1")        
-        self.assertEqual("Invalid number of arguments\n", f.getvalue())
-        f.close()
-
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1")        
-        self.assertEqual("Invalid number of arguments\n", f.getvalue())
-        f.close()
-
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1 2 N 4")        
-        self.assertEqual("Invalid number of arguments\n", f.getvalue())
-        f.close()
-
+        
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:")
+                    
+        self.assertEqual("Invalid number of arguments", str(e.exception))
+        
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1")
+                    
+        self.assertEqual("Invalid number of arguments", str(e.exception))
+        
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1 2 3 4")
+                    
+        self.assertEqual("Invalid number of arguments", str(e.exception))
+        
         
     def testExecute_InvalidOrientation(self):
         program = Program()
         program.plateau = Plateau(5,5)
         cmd = LandingCommand(program)
 
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1 2 A")        
-        self.assertEqual("Invalid orientation\n", f.getvalue())
-        f.close()
-
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1 2 A")
+                    
+        self.assertEqual("Invalid orientation", str(e.exception))
+        
         
     def testExecute_InvalidArgumentType(self):
         program = Program()
         program.plateau = Plateau(5,5)
         cmd = LandingCommand(program)
 
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:A 2 N")        
-        self.assertEqual("x and y values must be integer\n", f.getvalue())
-        f.close()                
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1 A N")
+                    
+        self.assertEqual("x and y values must be integer", str(e.exception))
         
-        f = io.StringIO()
-        with redirect_stdout(f): cmd.execute("Rover1 Landing:1 H N")        
-        self.assertEqual("x and y values must be integer\n", f.getvalue())
-        f.close()                
+        with self.assertRaises(AppError) as e: 
+            cmd.execute("Rover1 Landing:1 A N")
+                    
+        self.assertEqual("x and y values must be integer", str(e.exception))
         
         
     def testIsCompatible(self):

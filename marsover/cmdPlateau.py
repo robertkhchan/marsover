@@ -36,27 +36,28 @@ class PlateauCommand(Command):
             self (PlateauCommand): this object
             text (str): command to be executed 
         
+        Raises:
+            AppError: when pre-conditions are not satisfied, or arguments are not integer
+            
         '''
+        args = text[len(PlateauCommand.commandSyntax):].strip().split(" ")
+        
+        if (hasattr(self._context,"plateau") and self._context.plateau is not None):
+            raise AppError("Plateau is already defined")
+        elif (len(args) != 2):
+            raise AppError("Invalid number of arguments")
+        
         try:
-            args = text[len(PlateauCommand.commandSyntax):].strip().split(" ")
-            
-            if (hasattr(self._context,"plateau") and self._context.plateau is not None):
-                raise AppError("Plateau is already defined")
-            elif (len(args) != 2):
-                raise AppError("Invalid number of arguments")
-            
             borderX = int(args[0])
             borderY = int(args[1])
 
         except ValueError:
-            print("Arguments must be integer")
-        except Exception as e:
-            print(e)
+            raise AppError("Arguments must be integer")
         
         else:
             self._context.plateau = Plateau(borderX, borderY)
+        
 
-            
     @staticmethod
     def isCompatible(text):
         '''Static method to determine whether this module can handle the input command'''

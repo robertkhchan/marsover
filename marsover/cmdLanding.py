@@ -41,28 +41,29 @@ class LandingCommand(Command):
             self (LandingCommand): this object
             text (str): command to be executed 
         
+        Raises:
+            AppError: when pre-conditions are not satisfied, first two arguments are not integer, or not last argument
+                      is not a valid orientation
         '''
-        try:
-            roverName = text[0:text.index(LandingCommand.commandSyntax)]
-            args = text[text.index(LandingCommand.commandSyntax)+len(LandingCommand.commandSyntax):].strip().split(" ")
+        roverName = text[0:text.index(LandingCommand.commandSyntax)]
+        args = text[text.index(LandingCommand.commandSyntax)+len(LandingCommand.commandSyntax):].strip().split(" ")
 
-            if (not hasattr(self._context, "plateau") or self._context.plateau is None):
-                raise AppError("Plateau has not been defined")
-            elif (roverName in self._context.rovers.keys()):
-                raise AppError(roverName + " already exists")
-            elif (len(args) != 3):
-                raise AppError("Invalid number of arguments")
+        if (not hasattr(self._context, "plateau") or self._context.plateau is None):
+            raise AppError("Plateau has not been defined")
+        elif (roverName in self._context.rovers.keys()):
+            raise AppError(roverName + " already exists")
+        elif (len(args) != 3):
+            raise AppError("Invalid number of arguments")
         
+        try:
             x = int(args[0])
             y = int(args[1])
             orientation = Orientation[args[2]]
             
         except KeyError:
-            print("Invalid orientation")
+            raise AppError("Invalid orientation")
         except ValueError:
-            print("x and y values must be integer")
-        except Exception as e:
-            print(e)
+            raise AppError("x and y values must be integer")
             
         else:
             rover = Rover(roverName, self._context.plateau)

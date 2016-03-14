@@ -33,23 +33,20 @@ class InstructionCommand(Command):
         Args:
             self (LandingCommand): this object
             text (str): command to be executed 
-        
+            
+        Raises:
+            AppError: when pre-conditions are not satisfied
         '''
-        try:
-            roverName = text[0:text.index(InstructionCommand.commandSyntax)]
-            args = text[text.index(InstructionCommand.commandSyntax)+len(InstructionCommand.commandSyntax):].strip().split(" ")
+        roverName = text[0:text.index(InstructionCommand.commandSyntax)]
+        args = text[text.index(InstructionCommand.commandSyntax)+len(InstructionCommand.commandSyntax):].strip().split(" ")
+        
+        if (roverName not in self._context.rovers.keys()):
+            raise AppError(roverName + " does not exist")
+        elif (len(args) != 1 or len(args[0].strip()) == 0 ):
+            raise AppError("Invalid number of arguments")
             
-            if (roverName not in self._context.rovers.keys()):
-                raise AppError(roverName + " does not exist")
-            elif (len(args) != 1 or len(args[0].strip()) == 0 ):
-                raise AppError("Invalid number of arguments")
-            
-        except Exception as e:
-            print(e)
-
-        else:            
-            rover = self._context.rovers[roverName]
-            rover.setInstruction(args[0])
+        rover = self._context.rovers[roverName]
+        rover.setInstruction(args[0])
 
     
     @staticmethod
