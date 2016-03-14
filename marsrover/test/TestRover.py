@@ -165,5 +165,3 @@ class TestRover(unittest.TestCase):
         self.assertEqual("Rover1 encounters an invalid movement", str(e.exception))
 
 
-    def testFailure(self):
-        self.assertTrue(False, "Force a test failure")
