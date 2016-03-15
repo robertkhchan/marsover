@@ -8,12 +8,16 @@ Created on Mar 9, 2016
 '''
 from marsrover.orientation import Orientation
 from marsrover.applicationException import AppError
+from marsrover.fallOffException import FallOffError
+from marsrover.collisionException import CollisionError
+
 
 class Rover(object):
     
     def __init__(self, name, plateau):
         self.name = name
         self.plateau = plateau
+        self.isAlive = True
         self.movement = {
             "L" : self.left,
             "R" : self.right,
@@ -33,15 +37,18 @@ class Rover(object):
             orientation (Orientation): one of four Orientation values
         
         Raises:
-            AppError: when rover lands outside of plateau
+            AppError: when rover lands outside of plateau, or lands on an occupied site
              
         '''   
         if (x < 0 or x > self.plateau.borderX or y < 0 or y > self.plateau.borderY):
             raise AppError(self.name + " cannot land outside of plateau")
+        elif (self.plateau.hasRover(x, y)):
+            raise AppError("Landing site is already occupied")
         else:
             self.x = x
             self.y = y
             self.orientation = orientation
+            self.plateau.setRover(x, y)
                 
     
     def setInstruction(self, instruction):
@@ -78,9 +85,15 @@ class Rover(object):
         if not hasattr(self, "x") or not hasattr(self, "y") or not hasattr(self, "orientation"): 
             raise AppError(self.name + " is missing landing information")
 
-        if hasattr(self, "instruction"):            
+        if hasattr(self, "instruction"):
             for c in self.instruction:
-                self.movement.get(c, self.invalidMovement)()
+                try:
+                    self.movement.get(c, self.invalidMovement)()
+                except FallOffError as e:
+                    break
+                except CollisionError as e:
+                    print(str(e)) 
+
 
 
     def getDestination(self):
@@ -102,19 +115,36 @@ class Rover(object):
         '''Move rover forward by one space in the direction of its orientation
         
         Raises:
-            AppError: rover moves beyond plateau boundary
-        
+            FallOffError: rover moves beyond plateau boundary
+            CollisionError: rover moves into an occupied site
+            
         '''
-        if (self.orientation == Orientation.N and self.y + 1 <= self.plateau.borderY): 
-                self.y += 1 
-        elif (self.orientation == Orientation.E and self.x + 1 <= self.plateau.borderX):
-                self.x += 1
-        elif (self.orientation == Orientation.S and self.y - 1 >= 0): 
-                self.y -= 1
-        elif (self.orientation == Orientation.W and self.x - 1 >= 0): 
-                self.x -= 1
-        else: 
-            raise AppError(self.name + " cannot move beyond plateau boundary")
+        nextX = self.x
+        nextY = self.y
+        
+        if (self.orientation == Orientation.N):
+        # and self.y + 1 <= self.plateau.borderY): 
+                nextY += 1 
+        elif (self.orientation == Orientation.E):
+        # and self.x + 1 <= self.plateau.borderX):
+                nextX += 1
+        elif (self.orientation == Orientation.S):
+        # and self.y - 1 >= 0): 
+                nextY -= 1
+        elif (self.orientation == Orientation.W):
+        # and self.x - 1 >= 0): 
+                nextX -= 1
+        #else:
+        if (nextX < 0 or nextX > self.plateau.borderX or nextY < 0 or nextY > self.plateau.borderY): 
+            self.plateau.deleteRover(self.x, self.y)
+            self.isAlive = False
+            raise FallOffError(self.name + " cannot move beyond plateau boundary")
+        elif (self.plateau.hasRover(nextX, nextY)):
+            raise CollisionError(self.name + " cannot move into ("+str(nextX)+", "+str(nextY)+") because it is being occupied.")
+        else:
+            self.plateau.moveRover(self.x, self.y, nextX, nextY)
+            self.x = nextX
+            self.y = nextY
 
 
     def invalidMovement(self):

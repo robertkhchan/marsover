@@ -99,10 +99,13 @@ class TestRover(unittest.TestCase):
         rover.setLanding(5, 5, Orientation.N)
         rover.setInstruction("M")
     
-        with self.assertRaises(AppError) as e: 
-            rover.run()
+        self.assertTrue(rover.isAlive)
+        self.assertTrue(p.hasRover(5, 5))
+        
+        rover.run()
                             
-        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
+        self.assertFalse(rover.isAlive)
+        self.assertFalse(p.hasRover(5, 5))
         
     
     def testRun_MovesBeyondEastBorder(self):
@@ -111,10 +114,13 @@ class TestRover(unittest.TestCase):
         rover.setLanding(5, 5, Orientation.E)
         rover.setInstruction("M")
     
-        with self.assertRaises(AppError) as e: 
-            rover.run()
+        self.assertTrue(rover.isAlive)
+        self.assertTrue(p.hasRover(5, 5))
+        
+        rover.run()
                             
-        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
+        self.assertFalse(rover.isAlive)
+        self.assertFalse(p.hasRover(5, 5))
         
     
     def testRun_MovesBeyondSouthBorder(self):
@@ -123,10 +129,13 @@ class TestRover(unittest.TestCase):
         rover.setLanding(0, 0, Orientation.S)
         rover.setInstruction("M")
     
-        with self.assertRaises(AppError) as e: 
-            rover.run()
+        self.assertTrue(rover.isAlive)
+        self.assertTrue(p.hasRover(0, 0))
+        
+        rover.run()
                             
-        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
+        self.assertFalse(rover.isAlive)
+        self.assertFalse(p.hasRover(0, 0))
     
     
     def testRun_MovesBeyondWestBorder(self):
@@ -135,10 +144,13 @@ class TestRover(unittest.TestCase):
         rover.setLanding(0, 0, Orientation.W)
         rover.setInstruction("M")
     
-        with self.assertRaises(AppError) as e: 
-            rover.run()
+        self.assertTrue(rover.isAlive)
+        self.assertTrue(p.hasRover(0, 0))
+        
+        rover.run()
                             
-        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
+        self.assertFalse(rover.isAlive)
+        self.assertFalse(p.hasRover(0, 0))
         
     
     def testRun_MovesBeyondPlateau(self):
@@ -147,10 +159,13 @@ class TestRover(unittest.TestCase):
         rover.setLanding(1, 1, Orientation.N)
         rover.setInstruction("LMMMMM")
     
-        with self.assertRaises(AppError) as e: 
-            rover.run()
+        self.assertTrue(rover.isAlive)
+        self.assertTrue(p.hasRover(1, 1))
+        
+        rover.run()
                             
-        self.assertEqual("Rover1 cannot move beyond plateau boundary", str(e.exception))
+        self.assertFalse(rover.isAlive)
+        self.assertFalse(p.hasRover(1, 1))
         
         
     def testRun_InvalidMovement(self):
@@ -165,3 +180,62 @@ class TestRover(unittest.TestCase):
         self.assertEqual("Rover1 encounters an invalid movement", str(e.exception))
 
 
+    def testRun_LandingCollision(self):
+        p = Plateau(5,5)
+        rover1 = Rover("Rover1", p)
+        rover1.setLanding(1, 1, Orientation.N)
+        rover2 = Rover("Rover2", p)
+        
+        with self.assertRaises(AppError) as e: 
+            rover2.setLanding(1, 1, Orientation.E)
+                            
+        self.assertEqual("Landing site is already occupied", str(e.exception))
+        
+    
+    def testRun_MovementCollision(self):
+        p = Plateau(5,5)
+        
+        rover1 = Rover("Rover1", p)
+        rover1.setLanding(1, 2, Orientation.S)
+        rover1.setInstruction("M")
+        
+        rover2 = Rover("Rover2", p)
+        rover2.setLanding(0, 0, Orientation.E)
+        rover2.setInstruction("MLMLM")
+        
+        #if execute rover1 before rover2, then there is collision
+        rover1.run()
+        rover2.run()
+
+        self.assertEqual(1, rover1.x)
+        self.assertEqual(1, rover1.y)
+        self.assertEqual(Orientation.S, rover1.orientation)
+
+        self.assertEqual(0, rover2.x)
+        self.assertEqual(0, rover2.y)
+        self.assertEqual(Orientation.W, rover2.orientation)
+        
+
+    def testRun_NoMovementCollision(self):
+        p = Plateau(5,5)
+        
+        rover1 = Rover("Rover1", p)
+        rover1.setLanding(1, 2, Orientation.S)
+        rover1.setInstruction("M")
+        
+        rover2 = Rover("Rover2", p)
+        rover2.setLanding(0, 0, Orientation.E)
+        rover2.setInstruction("MLMLM")
+        
+        #if execute rover2 before rover1, then there is no collision
+        rover2.run()
+        rover1.run()
+
+        self.assertEqual(1, rover1.x)
+        self.assertEqual(1, rover1.y)
+        self.assertEqual(Orientation.S, rover1.orientation)
+
+        self.assertEqual(0, rover2.x)
+        self.assertEqual(1, rover2.y)
+        self.assertEqual(Orientation.W, rover2.orientation)
+        

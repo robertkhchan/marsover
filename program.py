@@ -12,6 +12,7 @@ class Program(object):
     def __init__(self):
         '''Initialize context with empty plateau and rovers map'''
         self.plateau = None
+        self.roversOrder = []
         self.rovers = dict()
         print("Welcome to NASA Mars Rover Control Station! Please enter your commands:")
         
@@ -26,7 +27,7 @@ class Program(object):
                 
     def complete(self):
         '''Iterate all registered rovers and make them run '''
-        for roverName in self.rovers:
+        for roverName in self.roversOrder:
             try:
                 self.rovers[roverName].run()
                 
@@ -34,7 +35,8 @@ class Program(object):
                 print(str(e))
                 
             finally:
-                print(self.rovers[roverName].getDestination())
+                if self.rovers[roverName].isAlive:
+                    print(self.rovers[roverName].getDestination())
 
 
 if __name__ == '__main__':

@@ -69,6 +69,7 @@ class LandingCommand(Command):
             rover = Rover(roverName, self._context.plateau)
             rover.setLanding(x, y, orientation)
             self._context.rovers[roverName] = rover
+            self._context.roversOrder.append(roverName)
             print(roverName + " landed")
             
     
